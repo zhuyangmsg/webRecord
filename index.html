@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<video autoplay width="200" height="200" id="video"></video>
+<video width="200" height="200" id="videoStream"></video>
+<button id="play">play</button>
+<script>
+    window.onload = function () {
+        let recorder = null;
+        let chunks = [];
+        let video = document.getElementById("video");
+        let videoStream = document.getElementById("videoStream");
+        document.getElementById("play").addEventListener("click", start);
+        navigator.mediaDevices.getDisplayMedia({ video: true }).then(stream => {
+            video.srcObject = stream;
+            recorder = new MediaRecorder(stream);
+            recorder.start(1000);
+            recorder.ondataavailable = event => {
+                chunks.push(event.data);
+            };
+        }).catch(error => {
+            console.log(error);
+        });
+        function start() {
+            try {
+                console.log("chunks", chunks);
+                let blob = new Blob(chunks, {
+                    type: 'video/mp4'
+                });
+                var url = window.URL.createObjectURL(blob);
+                videoStream.src = url;
+                console.log("videoStream", videoStream);
+                videoStream.play();
+            } catch (err) {
+                console.log("err", err.message);
+            }
+        }
+    }
+</script>
